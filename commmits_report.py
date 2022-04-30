@@ -2,10 +2,14 @@ import json
 import logging
 from urllib.request import urlopen , HTTPError
 from jinja2 import Template
+import argparse
 logging .basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+#logging.disable(logging.CRITICAL)
 logging.debug ("Start")
 
-def getCommitData(giturl):
+# Use Github api to get all the commits made in the branch. Returns json object or array of json objects
+# TO DO : Cache the API call to provide faster responses
+def getGithubData(giturl):
     try:
         response = urlopen(giturl)
     except HTTPError as http_err:
@@ -18,31 +22,50 @@ def getCommitData(giturl):
         source = response.read()
         return json.loads(source)
 
-def getCommitInfo(data,commit_count) :
-    commit_info_list = []
-    count = 1
-    if (isinstance(data, list)):
-        for item in data :
-           commit_info_list.append ({'committer': item['commit']['committer']['name'], 'commitID': item['sha'], 'msg': item['commit']['message']})
-           count += 1
-           if count > commit_count :
-               break
+# collect data for the report from the API returned JSON response
+#returns list  of dictionaries
+def getReportData(git_response) :
+    report_data = []
+    #response data had multiple commits data
+    if (isinstance(git_response, list)):
+        for item in git_response :
+           report_data.append ({'committer': item['commit']['committer']['name'], 'commitID': item['sha'], 'msg': item['commit']['message']})
     else :
-        commit_info_list.append({'committer': data['commit']['committer']['name'], 'commitID': data['sha'],'msg': data['commit']['message']})
-    return commit_info_list
+        # Response has single commit data
+        report_data.append({'committer': data['commit']['committer']['name'], 'commitID': data['sha'],'msg': data['commit']['message']})
+    return report_data
 
-def genReport (commitcount,data,path):
+# generate report using the data
+def genReport (commitcount,data,templatepath,outputpath):
     with open(templatepath) as tfile:
         template = Template(tfile.read())
-
-    out = template.render(commits=reportdata,count=commitcount)
-    with open(path, "w") as fhtml:
+    out = template.render(commits=data,count=commitcount)
+    with open(outputpath, "w") as fhtml:
         fhtml.write(out)
     logging.debug('%s  ' % (out))
 
-templatepath = "/Users/rharidoss/git-space/myproject/myproject/report_template.html"
-maxcommits=7
-data = getCommitData("https://api.github.com/repos/rharidoss/node-demo-app/commits")
-reportdata = getCommitInfo(data,maxcommits)
-logging.debug('%s  ' % (reportdata))
-genReport(maxcommits,reportdata,"/Users/rharidoss/git-space/myproject/myproject/commit_info.html")
+#get user inputs
+def getInputs() :
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-g', required=True) # git api base url
+    parser.add_argument('-r', required=True) # git repo name
+    parser.add_argument('-u', required=True) # repo owner
+    parser.add_argument('-b', required=True) # branch
+    parser.add_argument('-o', required=True) # output file name
+    return parser.parse_args()
+# Script entry
+def main() :
+    args = getInputs()  # collect inputs
+    maxcommits = 5
+    git_api = f"{args.g}/repos/{args.u}/{args.r}/commits?sha={args.b}&per_page={maxcommits}&page=1"  # construct the github API
+    logging.debug('%s  ' % (git_api))
+    outputfile = f"{args.o}"    # the report goes here
+    templatefile = "/Users/rharidoss/git-space/myproject/myproject/report_template.html"  # location of the jinja2 report template
+    response = getGithubData(git_api)  # Get commit info from github
+    reportdata = getReportData(response)  # Collect the data required for reporting
+    logging.debug('%s  ' % (reportdata))
+    genReport(maxcommits,reportdata,templatefile,outputfile)  # Create the report using the template
+
+if __name__ == '__main__' :
+    main()
+
