@@ -1,7 +1,6 @@
 import json
 import logging
-from urllib.request import urlopen
-from urllib.request import HTTPError
+from urllib.request import urlopen , HTTPError
 from jinja2 import Template
 logging .basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logging.debug ("Start")
@@ -32,16 +31,18 @@ def getCommitInfo(data,commit_count) :
         commit_info_list.append({'committer': data['commit']['committer']['name'], 'commitID': data['sha'],'msg': data['commit']['message']})
     return commit_info_list
 
-data = getCommitData("https://api.github.com/repos/rharidoss/node-demo-app/commits/patch-1")
-reportdata = getCommitInfo(data,5)
-jsonObject = json.dumps(reportdata, indent = 4)
-logging.debug('%s  ' % (jsonObject))
-commits = json.loads(jsonObject)
-logging.debug('%s  ' % (commits))
-with open("./jinja_template2.html") as tfile :
-    template = Template(tfile.read())
+def genReport (commitcount,data,path):
+    with open(templatepath) as tfile:
+        template = Template(tfile.read())
 
-out=template.render(commits=commits)
-print (out)
-with open("./commit_info.html","w") as fhtml :
-    fhtml.write(out)
+    out = template.render(commits=reportdata,count=commitcount)
+    with open(path, "w") as fhtml:
+        fhtml.write(out)
+    logging.debug('%s  ' % (out))
+
+templatepath = "/Users/rharidoss/git-space/myproject/myproject/report_template.html"
+maxcommits=7
+data = getCommitData("https://api.github.com/repos/rharidoss/node-demo-app/commits")
+reportdata = getCommitInfo(data,maxcommits)
+logging.debug('%s  ' % (reportdata))
+genReport(maxcommits,reportdata,"/Users/rharidoss/git-space/myproject/myproject/commit_info.html")
