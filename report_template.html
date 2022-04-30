@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <style>
+         table, th, td {
+            border: 1px solid black;
+         }
+      </style>
+   </head>
+
+   <body>
+      <h1>Last 5 Git commit information</h1>
+      <table>
+        <tr>
+            <th>Committer</th>
+            <th>Commit ID</th>
+            <th>Message</th>
+         </tr>
+
+         {% for commit in commits %}
+         <tr>
+            <th>{{commit['committer']}}</th>
+            <th>{{commit['commitID']}}</th>
+            <th>{{commit['msg']}}</th>
+         </tr>
+         {% endfor %}
+      </table>
+   </body>
+</html>
+
