@@ -36,10 +36,10 @@ def getReportData(git_response) :
     return report_data
 
 # generate report using the data
-def genReport (commitcount,data,templatepath,outputpath):
+def genReport (repo,branch,commitcount,data,templatepath,outputpath):
     with open(templatepath) as tfile:
         template = Template(tfile.read())
-    out = template.render(commits=data,count=commitcount)
+    out = template.render(commits=data,count=commitcount,repo=repo,branch=branch)
     with open(outputpath, "w") as fhtml:
         fhtml.write(out)
     logging.debug('%s  ' % (out))
@@ -56,15 +56,15 @@ def getInputs() :
 # Script entry
 def main() :
     args = getInputs()  # collect inputs
-    maxcommits = 5
+    maxcommits = 10
     git_api = f"{args.g}/repos/{args.u}/{args.r}/commits?sha={args.b}&per_page={maxcommits}&page=1"  # construct the github API
     logging.debug('%s  ' % (git_api))
     outputfile = f"{args.o}"    # the report goes here
-    templatefile = "/Users/rharidoss/git-space/myproject/myproject/report_template.html"  # location of the jinja2 report template
+    templatefile = "/Users/rharidoss/git-space/myproject/excercise1/report_template.html"  # location of the jinja2 report template
     response = getGithubData(git_api)  # Get commit info from github
     reportdata = getReportData(response)  # Collect the data required for reporting
     logging.debug('%s  ' % (reportdata))
-    genReport(maxcommits,reportdata,templatefile,outputfile)  # Create the report using the template
+    genReport(args.r,args.b,maxcommits,reportdata,templatefile,outputfile)  # Create the report using the template
 
 if __name__ == '__main__' :
     main()

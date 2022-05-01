@@ -10,8 +10,11 @@
 
    <body>
       <h1>Last {{count}} Git commit information</h1>
+      <h2>Repository Name : {{repo}}</h2>
+      <h2>Branch Name : {{branch}}</h2>
       <table>
         <tr>
+            <th>#</th>
             <th>Committer</th>
             <th>Commit ID</th>
             <th>Message</th>
@@ -19,6 +22,7 @@
 
          {% for commit in commits %}
          <tr>
+            <th>{{loop.index}}</th>
             <th>{{commit['committer']}}</th>
             <th>{{commit['commitID']}}</th>
             <th>{{commit['msg']}}</th>
