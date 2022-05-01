@@ -4,10 +4,10 @@ from urllib.request import urlopen , HTTPError
 from jinja2 import Template
 import argparse
 logging .basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-#logging.disable(logging.CRITICAL)
+logging.disable(logging.CRITICAL)
 logging.debug ("Start")
 
-# Use Github api to get all the commits made in the branch. Returns json object or array of json objects
+# Use Github api to get limited recent commits made in the branch. Returns json object or array of json objects
 # TO DO : Cache the API call to provide faster responses
 def getGithubData(giturl):
     try:
@@ -56,11 +56,11 @@ def getInputs() :
 # Script entry
 def main() :
     args = getInputs()  # collect inputs
-    maxcommits = 10
+    maxcommits = 5
     git_api = f"{args.g}/repos/{args.u}/{args.r}/commits?sha={args.b}&per_page={maxcommits}&page=1"  # construct the github API
     logging.debug('%s  ' % (git_api))
     outputfile = f"{args.o}"    # the report goes here
-    templatefile = "/Users/rharidoss/git-space/myproject/excercise1/report_template.html"  # location of the jinja2 report template
+    templatefile = "report_template.html"  # location of the jinja2 report template
     response = getGithubData(git_api)  # Get commit info from github
     reportdata = getReportData(response)  # Collect the data required for reporting
     logging.debug('%s  ' % (reportdata))
@@ -68,4 +68,3 @@ def main() :
 
 if __name__ == '__main__' :
     main()
-
