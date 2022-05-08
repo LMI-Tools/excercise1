@@ -1,6 +1,6 @@
 # Cool Assignment
-### usage: 
-###commmits_report.py -g \<githubAPIurl\> -r \<repoName\> -u \<repo owner\>  -b \<branch name\> -o \<outputfile\> [-t \<access token\>] | [env variable GITHUB_TOKEN=\<access token\>]
+### Usage: 
+### commmits_report.py -g \<githubAPIurl\> -r \<repoName\> -u \<repo owner\>  -b \<branch name\> -o \<outputfile\> [-t \<access token\>] | [env variable GITHUB_TOKEN=\<access token\>]
 
 ### pytest -q test_commmits_report.py  ( set env varible GITHUB_TOKEN=\<access token\> before executing the test)
 
