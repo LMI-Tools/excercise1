@@ -9,7 +9,7 @@ logging.disable(logging.CRITICAL)
 logging.debug('Start')
 
 
-# collect data for the report from the API returned JSON response
+# collect data for the report from the commit data returned by get_commits call
 # returns list  of dictionaries
 def getReportData(git_response):
     report_data = []
@@ -28,9 +28,10 @@ def genReport(repo, branch, commitcount, data, templatepath, outputpath):
     logging.debug('%s  ' % (out))
 
 
-def validateInputs(input):
+# validate the input and get commit data from GitHub
+def validateInputs(input, commitcount=5):
     try:
-        gh = Github(base_url=input.g, login_or_token=input.t, per_page=5)
+        gh = Github(base_url=input.g, login_or_token=input.t, per_page=commitcount)
         # check if the repo exists
         repo = gh.get_repo(f'{input.u}/{input.r}')
         logging.debug('%s ' % (f'Repo Name: {repo.full_name}'))
@@ -43,13 +44,13 @@ def validateInputs(input):
     except ValueError as e:
         print(str(e))
         exit(5)
-    except BadCredentialsException as e:
+    except BadCredentialsException:
         print('Bad access token credentials')
         exit(4)
-    except UnknownObjectException as e:
+    except UnknownObjectException:
         print('Incorrect owner or repository name')
         exit(3)
-    except GithubException as e:
+    except GithubException:
         print('Branch not found')
         exit(2)
     except FileNotFoundError:
@@ -80,12 +81,11 @@ def getInputs():
 
 # Script entry
 def main():
-    args = getInputs()  # collect inputs
-    response = validateInputs(args)
-    reportdata = getReportData(response)  # Collect the data required for reporting
     maxcommits = 5
+    args = getInputs()  # collect inputs
+    response = validateInputs(args, maxcommits)  # validate the input and get commit data from GitHub
+    reportdata = getReportData(response)  # Collect the data required for reporting
     outputfile = args.o
-
     templatefile = 'report_template.html'  # location of the jinja2 report template
     logging.debug('%s  ' % (reportdata))
     genReport(args.r, args.b, maxcommits, reportdata, templatefile, outputfile)  # Create the report using the template

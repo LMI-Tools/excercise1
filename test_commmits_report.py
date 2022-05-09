@@ -23,8 +23,8 @@ def test_inputs():
 @pytest.mark.parametrize('apiurl, repo, owner, branch, outputfile', [(
         'https://api.github.com', 'node-demo-app', 'rharidoss', 'patch-1',
         '/Users/rharidoss/PycharmProjects/excercise1/commit_info_1.html'),
-    ('https://api.github.com', 'myproject', 'LMI-Tools', 'patch-1', 'commit_info_2.html'),
-    ('https://api.github.com', 'docker-maven-plugin', 'fabric8io', 'integration', 'commit_info_3.html')])
+    ('https://api.github.com', 'myproject', 'LMI-Tools', 'patch-1', '/Users/rharidoss/PycharmProjects/excercise1/commit_info_2.html'),
+    ('https://api.github.com', 'docker-maven-plugin', 'fabric8io', 'integration', '/Users/rharidoss/PycharmProjects/excercise1/commit_info_3.html')])
 def test_main(apiurl, repo, owner, branch, outputfile):
     args = argparse.Namespace()
     args.g = apiurl
